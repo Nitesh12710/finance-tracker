@@ -1,36 +1,47 @@
+const path = require('path');
 const express = require('express');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const cors = require('cors');
+const colors = require('colors');
+const morgan = require('morgan');
+const connectDB = require('./config/db');
 
-dotenv.config();
+// ✅ Load environment variables (make sure .env file exists)
+dotenv.config({ path: './config/.env' });
+
+// ✅ Connect to MongoDB
+connectDB();
+
+const transactions = require('./routes/transactions');
+
 const app = express();
 
+// ✅ Body parser
 app.use(express.json());
-app.use(cors());
 
-// Importing routes for authentication
-const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
+// ✅ Logging (only in development)
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
-// Importing routes for transactions
-const transcationRoutes = require('./routes/transcation');
-app.use('/api/transcation', transcationRoutes);
+// ✅ API routes
+app.use('/api/v1/transactions', transactions);
 
-app.get('/', (req, res) => {
-    res.send("Finance Tracker backend is running");
-});
+// ✅ Serve frontend (only in production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
 
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+  );
+}
+
+// ✅ Use PORT from env or fallback to 5000
 const PORT = process.env.PORT || 5000;
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.log('MongoDB Error:', err));
-
-app.listen(PORT, () => {
-    console.log("Server is running on port ", PORT);
-
-});
-
-
+// ✅ Start server
+app.listen(PORT, () =>
+  console.log(
+    `Server running in ${process.env.NODE_ENV || 'default'} mode on port ${PORT}`
+      .yellow.bold
+  )
+);
