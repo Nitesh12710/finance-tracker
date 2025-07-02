@@ -20,7 +20,7 @@ const Home = () => {
             Login
           </Link>
           <Link
-            to="/register"
+            to="/signup"
             className="bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-6 rounded-2xl shadow-md transition duration-300"
           >
             Register
