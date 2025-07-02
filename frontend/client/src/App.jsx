@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Home from './pages/Home'; // <- Your new modern landing page
 
 function App() {
   return (
@@ -13,9 +14,11 @@ function App() {
       <AuthProvider>
         <div className="min-h-screen flex flex-col bg-gray-50">
           <Navbar />
+
           <main className="flex-grow">
             <Routes>
-              {/* Auth pages FULL WIDTH */}
+              {/* ✅ Public Routes */}
+              <Route path="/" element={<Home />} />
               <Route
                 path="/login"
                 element={
@@ -33,7 +36,7 @@ function App() {
                 }
               />
 
-              {/* Protected routes inside layout */}
+              {/* ✅ Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route
                   path="/dashboard"
@@ -48,14 +51,6 @@ function App() {
                   element={
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                       <Transactions />
-                    </div>
-                  }
-                />
-                <Route
-                  path="/"
-                  element={
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                      <Dashboard />
                     </div>
                   }
                 />

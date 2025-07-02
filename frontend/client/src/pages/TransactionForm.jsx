@@ -19,12 +19,26 @@ const categories = [
   { value: 'education', label: 'Education', type: 'expense' }
 ];
 
+const currencies = [
+  { code: 'USD', symbol: '$', label: 'USD – US Dollar' },
+  { code: 'EUR', symbol: '€', label: 'EUR – Euro' },
+  { code: 'GBP', symbol: '£', label: 'GBP – British Pound' },
+  { code: 'PKR', symbol: '₨', label: 'PKR – Pakistani Rupee' },
+  { code: 'INR', symbol: '₹', label: 'INR – Indian Rupee' },
+  { code: 'JPY', symbol: '¥', label: 'JPY – Japanese Yen' },
+  { code: 'CAD', symbol: 'C$', label: 'CAD – Canadian Dollar' },
+  { code: 'AUD', symbol: 'A$', label: 'AUD – Australian Dollar' },
+  { code: 'CNY', symbol: '¥', label: 'CNY – Chinese Yuan' },
+  { code: 'SAR', symbol: '﷼', label: 'SAR – Saudi Riyal' }
+];
+
 const TransactionForm = ({ initialData = {}, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     title: initialData.title || '',
     amount: initialData.amount || '',
     type: initialData.type || 'expense',
     category: initialData.category || 'food',
+    currency: initialData.currency || 'USD',
     date: initialData.date || new Date().toISOString().split('T')[0]
   });
 
@@ -65,15 +79,13 @@ const TransactionForm = ({ initialData = {}, onSubmit, onCancel }) => {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-            Type
-          </label>
+          <label htmlFor="type" className="block text-sm font-medium text-gray-700">Type</label>
           <select
             id="type"
             name="type"
             value={formData.type}
             onChange={handleChange}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+            className="mt-1 block w-full py-2 pl-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           >
             <option value="income">Income</option>
             <option value="expense">Expense</option>
@@ -81,31 +93,54 @@ const TransactionForm = ({ initialData = {}, onSubmit, onCancel }) => {
         </div>
 
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-            Category
-          </label>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
           <select
             id="category"
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+            className="mt-1 block w-full py-2 pl-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           >
-            {categories
-              .filter((cat) => cat.type === formData.type)
-              .map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))}
+            {categories.filter(cat => cat.type === formData.type).map(category => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
           </select>
+        </div>
+
+        <div>
+          <label htmlFor="currency" className="block text-sm font-medium text-gray-700">Currency</label>
+          <select
+            id="currency"
+            name="currency"
+            value={formData.currency}
+            onChange={handleChange}
+            className="mt-1 block w-full py-2 pl-3 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            {currencies.map(currency => (
+              <option key={currency.code} value={currency.code}>
+                {currency.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="date" className="block text-sm font-medium text-gray-700">Date</label>
+          <input
+            type="date"
+            id="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            className="mt-1 block w-full shadow-sm sm:text-sm rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
       </div>
 
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-          Title
-        </label>
+        <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
         <input
           type="text"
           id="title"
@@ -120,13 +155,11 @@ const TransactionForm = ({ initialData = {}, onSubmit, onCancel }) => {
       </div>
 
       <div>
-        <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-          Amount
-        </label>
-        <div className="mt-1 relative rounded-md shadow-sm">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span className="text-gray-500 sm:text-sm">$</span>
-          </div>
+        <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
+        <div className="mt-1 flex rounded-md shadow-sm">
+          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+            {currencies.find(c => c.code === formData.currency)?.symbol || '$'}
+          </span>
           <input
             type="number"
             id="amount"
@@ -135,27 +168,13 @@ const TransactionForm = ({ initialData = {}, onSubmit, onCancel }) => {
             onChange={handleChange}
             step="0.01"
             min="0"
-            className={`block w-full pl-7 pr-12 sm:text-sm rounded-md ${
+            placeholder="0.00"
+            className={`block w-full rounded-none rounded-r-md sm:text-sm ${
               errors.amount ? 'border-red-500' : 'border-gray-300'
             } focus:ring-blue-500 focus:border-blue-500`}
-            placeholder="0.00"
           />
         </div>
         {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount}</p>}
-      </div>
-
-      <div>
-        <label htmlFor="date" className="block text-sm font-medium text-gray-700">
-          Date
-        </label>
-        <input
-          type="date"
-          id="date"
-          name="date"
-          value={formData.date}
-          onChange={handleChange}
-          className="mt-1 block w-full shadow-sm sm:text-sm rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-        />
       </div>
 
       <div className="flex justify-end space-x-3">
@@ -163,14 +182,14 @@ const TransactionForm = ({ initialData = {}, onSubmit, onCancel }) => {
           <button
             type="button"
             onClick={onCancel}
-            className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-blue-500"
           >
             Cancel
           </button>
         )}
         <button
           type="submit"
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="py-2 px-4 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
         >
           {initialData._id ? 'Update' : 'Add'} Transaction
         </button>

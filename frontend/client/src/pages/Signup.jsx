@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -6,6 +7,7 @@ import * as Yup from 'yup';
 const Signup = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const initialValues = {
     username: '',
@@ -14,15 +16,9 @@ const Signup = () => {
   };
 
   const validationSchema = Yup.object({
-    username: Yup.string()
-      .min(3, 'Username must be at least 3 characters')
-      .required('Username is required'),
-    email: Yup.string()
-      .email('Invalid email address')
-      .required('Email is required'),
-    password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required')
+    username: Yup.string().min(3, 'Username must be at least 3 characters').required('Username is required'),
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required')
   });
 
   const handleSubmit = async (values, { setSubmitting, setErrors }) => {
@@ -38,7 +34,14 @@ const Signup = () => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-50">
-      <div className="w-[500px] bg-white p-10 rounded-lg shadow-xl">
+      <div className="w-[500px] bg-white p-10 rounded-lg shadow-xl relative">
+        <button
+          onClick={() => navigate('/')}
+          className="absolute top-4 left-4 text-blue-600 hover:text-blue-800 text-sm font-medium"
+        >
+          ← Back
+        </button>
+
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Finance Tracker</h1>
           <h2 className="text-xl text-gray-600">Create a new account</h2>
@@ -51,14 +54,12 @@ const Signup = () => {
         >
           {({ isSubmitting, errors }) => (
             <Form className="space-y-6">
-              {/* General error */}
               {errors.general && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                   {errors.general}
                 </div>
               )}
 
-              {/* Username */}
               <div>
                 <label className="block text-sm font-medium text-gray-700" htmlFor="username">
                   Username
@@ -72,7 +73,6 @@ const Signup = () => {
                 <ErrorMessage name="username" component="div" className="text-sm text-red-600 mt-1" />
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700" htmlFor="email">
                   Email address
@@ -86,21 +86,30 @@ const Signup = () => {
                 <ErrorMessage name="email" component="div" className="text-sm text-red-600 mt-1" />
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block text-sm font-medium text-gray-700" htmlFor="password">
                   Password
                 </label>
                 <Field
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Password (min 6 characters)"
                   className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
                 <ErrorMessage name="password" component="div" className="text-sm text-red-600 mt-1" />
+                <div className="mt-2">
+                  <label className="inline-flex items-center text-sm text-gray-600">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={showPassword}
+                      onChange={() => setShowPassword(!showPassword)}
+                    />
+                    Show Password
+                  </label>
+                </div>
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={isSubmitting}
